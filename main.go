@@ -1,8 +1,9 @@
 package main
 
 import (
-	
 	"io"
+	// "net/http"
+	// "time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -79,15 +80,73 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 
-	router.GET("/getData"  , getData)
 
+	// auth := router.BasicAuth(gin.Accounts{
+	// 	"user": "password",
+	// 	"user2" : "password2",
+	// 	"user3" : "password",
+
+	// })
+
+
+	// router.GET("/getData"  , getData)
+
+	// router.POST("/getDataPost", getDataPost)
+
+	// router.GET("/getQueryString", getQueryString)
+
+	// router.GET("/getUrlData/:name/:age", getUrlData)
+
+	// router.Run(":8080")
+
+	//The above line is equivalent to the following two lines
+	// http.ListenAndServe(":8080", router)
+
+	//This is the same as the above line
+	// server := &http.Server{
+	// 	Addr:    ":9091",
+	// 	Handler: router,
+	// 	ReadTimeout: 10 * time.Second,
+	// 	WriteTimeout: 10 * time.Second,
+	// }
+
+	// server.ListenAndServe()
+
+
+
+
+
+
+	//ROUTE GROUPING
+
+	//without any group
+	router.GET("/getData", getData)
 	router.POST("/getDataPost", getDataPost)
-
 	router.GET("/getQueryString", getQueryString)
-
 	router.GET("/getUrlData/:name/:age", getUrlData)
 
+	//route grouping in gin
+	admin := router.Group("/admin")
+	
+	client := router.Group("/client")
+
+	{
+		admin.GET("/getData", getData)
+		admin.POST("/getDataPost", getDataPost)
+		admin.GET("/getQueryString", getQueryString)
+		admin.GET("/getUrlData/:name/:age", getUrlData)
+	}
+
+	{
+		client.GET("/getData", getData)
+		client.POST("/getDataPost", getDataPost)
+		client.GET("/getQueryString", getQueryString)
+		client.GET("/getUrlData/:name/:age", getUrlData)
+	}
+
+
 	router.Run(":8080")
+	
 
 
 }
