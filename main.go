@@ -6,7 +6,12 @@ import (
 	// "time"
 
 	//"github.com/TechnoDiktator/ginTutorial/middleware"
-	"github.com/TechnoDiktator/ginTutorial/middleware"
+	"io"
+	"log"
+	"os"
+
+	//"github.com/TechnoDiktator/ginTutorial/middleware"
+	"github.com/TechnoDiktator/ginTutorial/middleware/logger"
 	"github.com/gin-gonic/gin"
 	//"google.golang.org/grpc/admin"
 )
@@ -56,7 +61,6 @@ import (
 // }
 // http://localhost:8080/getUrlData/name/Mark/age/30
 
-
 func getData1(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"data": "Hi I am getData1 GIN Framework",
@@ -70,39 +74,64 @@ func getData2(c *gin.Context) {
 
 }
 
-
-
 func getData(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"data": "Hi I am getData GIN Framework",
 	})
 
-
 }
-
-
 
 func main() {
 
 	// router := gin.Default()
-
 	router := gin.New()
-	router.Use(gin.Logger())
+	// this will log to the console
+	router.Use(gin.LoggerWithFormatter(logger.FormatLogs))
 
+	//Implementing custom logging
+	f, _ := os.Create("ginLogging.log")
+	//so this will log whatever gin logs to the file
+	//gin.DefaultWriter = io.MultiWriter(f)
+
+	
+	
+	
+	//what if we want to write to the console as well
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+
+
+
+	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
+		//this will log to the console
+		log.Printf("endpoint formatted information is as follows")
+		log.Printf("Route: %s %s", httpMethod, absolutePath)
+		log.Printf("Handler: %s", handlerName)
+		log.Printf("Number of handlers: %d", nuHandlers)
+
+		//you can also write to gin.DefaultWriter
+		gin.DefaultWriter.Write([]byte("endpoint formatted information is as follows\n"))
+		gin.DefaultWriter.Write([]byte("Route: " + httpMethod + " " + absolutePath + "\n"))
+		gin.DefaultWriter.Write([]byte("Handler: " + handlerName + "\n"))
+		gin.DefaultWriter.Write([]byte("Number of handlers: " + string(nuHandlers) + "\n"))
+	}
+
+	router.GET("/getData", getData)
+
+	// router := gin.New()
+	// router.Use(gin.Logger())
 
 	//this will apply to all routes
 	// router.Use(middleware.Authenticate)
-
 
 	//to apply to specific routes
 	// router.GET("/getData", middleware.Authenticate, getData)
 	// router.POST("/getDataPost", middleware.Authenticate, getData1)
 
-	router.GET("getData", getData)
-	router.POST("getData1"  ,middleware.Authenticate ,  middleware.AddHeader , getData1)
-	router.GET("getData2", getData2)
-
+	// router.GET("getData", getData)
+	// router.POST("getData1"  ,middleware.Authenticate ,  middleware.AddHeader , getData1)
+	// router.GET("getData2", getData2)
 
 	//another way to apply middleware
 	// admin := router.Group("/admin" , middleware.Authenticate)
@@ -111,23 +140,12 @@ func main() {
 	// 	admin.POST("/getData1", getData1)
 	// }
 
-
-
-
-
-
-
-
-
-
-
 	// auth := router.BasicAuth(gin.Accounts{
 	// 	"user": "password",
 	// 	"user2" : "password2",
 	// 	"user3" : "password",
 
 	// })
-
 
 	// router.GET("/getData"  , getData)
 
@@ -152,11 +170,6 @@ func main() {
 
 	// server.ListenAndServe()
 
-
-
-
-
-
 	//ROUTE GROUPING
 
 	// //without any group
@@ -167,7 +180,7 @@ func main() {
 
 	// //route grouping in gin
 	// admin := router.Group("/admin")
-	
+
 	// client := router.Group("/client")
 
 	// {
@@ -184,16 +197,6 @@ func main() {
 	// 	client.GET("/getUrlData/:name/:age", getUrlData)
 	// }
 
-
 	router.Run(":8080")
-	
-
 
 }
-
-
-
-
-
-
-
