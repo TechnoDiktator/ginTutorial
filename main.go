@@ -65,6 +65,7 @@ func getUrlData(c *gin.Context){
 		"age":  age,
 	})
 }
+// http://localhost:8080/getUrlData/name/Mark/age/30
 
 
 
