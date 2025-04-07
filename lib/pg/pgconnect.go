@@ -14,9 +14,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "your_user"
-	password = "your_password"
-	dbname   = "your_db"
+	user     = "postgres"
+	password = "12345678"
+	dbname   = "postgress_db_test"
 	sslmode  = "disable"
 )
 

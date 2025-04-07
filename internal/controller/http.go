@@ -38,59 +38,58 @@ func RouteRequestHandleTemp(c *gin.Context, localServiceInit *sharedpackets.Loca
 			Errors:  err.Error(),
 			Data:    nil,
 		})
-
-		valid, typeErrors, emptyErrors, fetchErrors, dataMatchingError := validators.ValidateRequestForTempObject(requestPacket)
-		if !valid {
-			var errors []string
-			if len(typeErrors) > 0 {
-				errors = append(errors, typeErrors...)
-			}
-			if len(emptyErrors) > 0 {
-				errors = append(errors, emptyErrors...)
-			}
-			if len(fetchErrors) > 0 {
-				errors = append(errors, fetchErrors...)
-			}
-			if len(dataMatchingError) > 0 {
-				errors = append(errors, dataMatchingError...)
-			}
-			c.JSON(constants.StateValidationFailed.HttpsStatusCode, responsepackets.CommanErrorResponse{
-				Success: constants.StateValidationFailed.Success,
-				Message: constants.StateValidationFailed.Message,
-				Errors:  errors,
-				Code:    constants.StateValidationFailed.ErrorCode,
-				Data:    nil,
-			})
-			return
-		}
-
-		var data *dbmodels.Temp
-		jsondata, err := json.Marshal(data)
-
-		RawMessage := json.RawMessage(jsondata)
-
-		if err != nil {
-			logrus.Errorf("Error marshalling data: %v", err)
-			c.JSON(http.StatusInternalServerError, responsepackets.CommanErrorResponse{
-				Success: false,
-				Message: "Internal server error",
-				Code:    500,
-				Data:    nil,
-				Errors:  err.Error(),
-			})
-			return
-		}
-		// Return a Success response
-		c.JSON(http.StatusAccepted, responsepackets.CommonResponsePacket{
-			Success: true,
-			Code:    "200",
-			Message: "Request processed successfully",
-			Data:    RawMessage,
-		})
 		return
 
 	}
 
+	valid, typeErrors, emptyErrors, fetchErrors, dataMatchingError := validators.ValidateRequestForTempObject(requestPacket)
+	if !valid {
+		var errors []string
+		if len(typeErrors) > 0 {
+			errors = append(errors, typeErrors...)
+		}
+		if len(emptyErrors) > 0 {
+			errors = append(errors, emptyErrors...)
+		}
+		if len(fetchErrors) > 0 {
+			errors = append(errors, fetchErrors...)
+		}
+		if len(dataMatchingError) > 0 {
+			errors = append(errors, dataMatchingError...)
+		}
+		c.JSON(constants.StateValidationFailed.HttpsStatusCode, responsepackets.CommanErrorResponse{
+			Success: constants.StateValidationFailed.Success,
+			Message: constants.StateValidationFailed.Message,
+			Errors:  errors,
+			Code:    constants.StateValidationFailed.ErrorCode,
+			Data:    nil,
+		})
+		return
+	}
+
+	var data *dbmodels.Temp
+	jsondata, err := json.Marshal(data)
+
+	RawMessage := json.RawMessage(jsondata)
+
+	if err != nil {
+		logrus.Errorf("Error marshalling data: %v", err)
+		c.JSON(http.StatusInternalServerError, responsepackets.CommanErrorResponse{
+			Success: false,
+			Message: "Internal server error",
+			Code:    500,
+			Data:    nil,
+			Errors:  err.Error(),
+		})
+		return
+	}
+	// Return a Success response
+	c.JSON(http.StatusAccepted, responsepackets.CommonResponsePacket{
+		Success: true,
+		Code:    "200",
+		Message: "Request processed successfully",
+		Data:    RawMessage,
+	})
 	//maybe some validator should also be put here
 	// Process the requestPacket as needed
 
