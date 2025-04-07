@@ -15,6 +15,7 @@ import ( //"io"
 
 	//"google.golang.org/grpc/admin"
 
+	"github.com/TechnoDiktator/ginTutorial/internal/controller"
 	"github.com/TechnoDiktator/ginTutorial/serviceinit"
 )
 
@@ -56,13 +57,18 @@ func main() {
 		controller.RouteRequestHandleTemp(c, localServiceInit)
 	})
 
+
+	startServer(router)
+
 }
 
-func startServer() {
+func startServer(router *gin.Engine) {
+	logrus.Infof("Starting server on port 8080")
 	server := &http.Server{
 		Addr:              ":8080",
 		WriteTimeout:      15 * time.Second,
 		ReadHeaderTimeout: 2 * time.Second,
+		Handler: 		 router,
 	}
 
 	err := http2.ConfigureServer(server, nil)
@@ -73,11 +79,18 @@ func startServer() {
 	}
 
 	go func() {
+		logrus.Infof("1")
 		err := server.ListenAndServe()
+
+		logrus.Infof("2")
 
 		if err != nil {
 			logrus.Errorf("Error starting server: %v", err)
 		}
+
+		logrus.Infof("Server started on %s", server.Addr)
+		
+
 	}()
 
 	GracefullShutdown(server)
@@ -85,6 +98,11 @@ func startServer() {
 }
 
 func GracefullShutdown(server *http.Server) {
+	logrus.Infof("Setting up graceful shutdown...")
+	// Create a channel to listen for OS signals
+	// This will allow us to gracefully shut down the server when we receive a termination signal
+	// such as SIGINT (Ctrl+C) or SIGTERM (kill command)
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
