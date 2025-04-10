@@ -22,3 +22,12 @@ type RequestPacketTypeOne struct {
 
 
 }
+
+
+type CreateSurveyRequest struct {
+	Heading     string   `json:"heading" binding:"required"`
+	Description string   `json:"description" binding:"required"`
+	Questions   []string `json:"questions" binding:"required"`
+}
+
+

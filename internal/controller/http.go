@@ -94,3 +94,77 @@ func RouteRequestHandleTemp(c *gin.Context, localServiceInit *sharedpackets.Loca
 	// Process the requestPacket as needed
 
 }
+
+
+func RouteRequestHandleCreateSurvey(c  *gin.Context , localServiceInit *sharedpackets.LocalServiceInit){
+	
+	
+
+	var requestPacket requestpackets.CreateSurveyRequest
+
+	if err := c.ShouldBindJSON(&requestPacket); err != nil {
+		logrus.Errorf("Error binding JSON: %v", err)
+		//c.JSON(constants.StateInvalidRequestPacket.HttpsStatusCode, gin.H{"error": "Invalid JSON"})
+
+		c.JSON(constants.StateInvalidRequestPacket.HttpsStatusCode, responsepackets.CommanErrorResponse{
+			Success: constants.StateInvalidRequestPacket.Success,
+			Message: constants.StateInvalidRequestPacket.Message,
+			Code:    constants.StateInvalidRequestPacket.ErrorCode,
+			Errors:  err.Error(),
+			Data:    nil,
+		})
+		return
+
+	}
+
+
+	var survey dbmodels.Survey
+
+	survey.Description = requestPacket.Description
+	survey.Heading = requestPacket.Heading
+	survey.Questions = requestPacket.Questions
+
+	//create the request packet object in database
+	err := localServiceInit.PgService.CreateSurvey(survey)
+
+	if err != nil {
+		logrus.Errorf("Error binding JSON: %v", err)
+		//c.JSON(constants.StateInvalidRequestPacket.HttpsStatusCode, gin.H{"error": "Invalid JSON"})
+
+		c.JSON(constants.StateInvalidRequestPacket.HttpsStatusCode, responsepackets.CommanErrorResponse{
+			Success: constants.StateInvalidRequestPacket.Success,
+			Message: "Failed To create Object In DB",
+			Code:    900,
+			Errors:  err.Error(),
+			Data:    nil,
+		})
+		return	
+	}
+
+	jsondata, err := json.Marshal(survey)
+
+	if err != nil{
+		c.JSON(constants.StateInvalidRequestPacket.HttpsStatusCode, responsepackets.CommanErrorResponse{
+			Success: constants.StateInvalidRequestPacket.Success,
+			Message: "Failed To create Object In DB",
+			Code:    900,
+			Errors:  err.Error(),
+			Data:    nil,
+		})
+		return	
+	}
+
+	RawMessage := json.RawMessage(jsondata)
+
+
+	// Return a Success response
+	c.JSON(http.StatusAccepted, responsepackets.CommonResponsePacket{
+		Success: true,
+		Code:    "200",
+		Message: "Request processed successfully",
+		Data:    RawMessage,
+	})
+
+
+
+} 

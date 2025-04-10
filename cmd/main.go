@@ -9,6 +9,7 @@ import ( //"io"
 	"syscall"
 	"time"
 
+	//"math"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
@@ -56,6 +57,33 @@ func main() {
 	router.POST("/temp", func(c *gin.Context) {
 		controller.RouteRequestHandleTemp(c, localServiceInit)
 	})
+
+
+	/*
+	
+
+		{
+		"heading": "Employee Satisfaction Survey",
+		"description": "A short survey to understand how employees feel about their workplace.",
+		"questions": [
+			"How satisfied are you with your current role?",
+			"Do you feel valued at work?",
+			"Would you recommend this company to a friend?",
+			"What improvements would you like to see?"
+		]
+		}
+
+	
+	*/
+
+	// router.POST("/create_user" , )
+	router.POST("/create_survey" ,  func(c *gin.Context) {
+
+		controller.RouteRequestHandleCreateSurvey(c , localServiceInit)
+	
+	})
+
+
 
 
 	startServer(router)
